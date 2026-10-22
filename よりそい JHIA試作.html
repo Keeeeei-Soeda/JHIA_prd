@@ -1,0 +1,508 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>よりそい JHIA試作</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+/* Layout: 試作の説明パネル＋スマホ1画面のアプリ。狭い画面ではアプリを先に表示 */
+:root{
+  --bg:#F6F4F2; --app:#FFFFFF; --surface:#FFFFFF; --surface-2:#F7F2EE;
+  --ink:#3A2A22; --ink-2:#76604F; --line:#ECE3DB;
+  --teal:#C2553A; --teal-ink:#FFFFFF; --teal-soft:#FBE0D3;
+  --peach:#FCE7C6; --peach-ink:#8A4B10;
+  --warn-bg:#FADCD6; --warn-ink:#9E2418;
+  --c-milk:#C2603A; --c-breast:#A24C7C; --c-poop:#8A5A1E; --c-pee:#8E6C0F;
+  --c-glucose:#B23E2E; --c-sleep:#7A5C9A; --c-med:#5E7F2E;
+  --font-display:'Zen Maru Gothic','Hiragino Maru Gothic ProN',sans-serif;
+  --font-body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1A1411; --app:#221A16; --surface:#2C221D; --surface-2:#362A23;
+  --ink:#F6ECE4; --ink-2:#C7B3A4; --line:#45362D;
+  --teal:#F08A68; --teal-ink:#24160F; --teal-soft:#4A2B20;
+  --peach:#45321B; --peach-ink:#F6CF95;
+  --warn-bg:#4A221C; --warn-ink:#FFA597;
+  --c-milk:#F2936D; --c-breast:#E59BC6; --c-poop:#D9A262; --c-pee:#E3C55C;
+  --c-glucose:#F5806C; --c-sleep:#C5A9E6; --c-med:#A9CB72;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1A1411; --app:#221A16; --surface:#2C221D; --surface-2:#362A23;
+  --ink:#F6ECE4; --ink-2:#C7B3A4; --line:#45362D;
+  --teal:#F08A68; --teal-ink:#24160F; --teal-soft:#4A2B20;
+  --peach:#45321B; --peach-ink:#F6CF95;
+  --warn-bg:#4A221C; --warn-ink:#FFA597;
+  --c-milk:#F2936D; --c-breast:#E59BC6; --c-poop:#D9A262; --c-pee:#E3C55C;
+  --c-glucose:#F5806C; --c-sleep:#C5A9E6; --c-med:#A9CB72;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.6;
+  padding-block:24px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.wrap{display:grid;grid-template-columns:minmax(0,600px);justify-content:center;gap:28px;align-items:start}
+@media (min-width:1000px){.wrap{grid-template-columns:300px 600px}.notes{order:0}.phone{order:1}}
+.notes{order:2;display:flex;flex-direction:column;gap:16px;min-width:0}
+.notes h1{font-family:var(--font-display);font-size:26px;line-height:1.3;margin:0;text-wrap:balance}
+.notes p{margin:0;color:var(--ink-2)}
+.notes h2{font-size:14px;letter-spacing:.06em;color:var(--peach-ink);margin:8px 0 0}
+.notes ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+.note-box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:14px;color:var(--ink-2)}
+.btn-ghost{background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 16px;align-self:start}
+
+/* phone */
+.phone{order:1;position:relative;display:flex;flex-direction:column;background:var(--app);border:1px solid var(--line);
+  border-radius:28px;overflow:hidden;height:min(860px, calc(100dvh - 48px));min-height:600px;min-width:0}
+.top{padding:14px 18px 12px;background:var(--app);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.top-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--teal)}
+.brand small{font-family:var(--font-body);font-weight:500;font-size:11px;color:var(--ink-2);margin-left:6px}
+.child{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--peach);color:var(--peach-ink);display:grid;place-items:center;font-family:var(--font-display);font-weight:700}
+.child b{font-size:16px}.child span{font-size:12px;color:var(--ink-2);display:block;line-height:1.3}
+.seg{display:flex;background:var(--surface-2);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg-label{font-size:11px;color:var(--ink-2);text-align:right}
+.screen{flex:1;overflow-y:auto;padding:16px 16px 24px;display:flex;flex-direction:column;gap:18px}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--surface);padding-bottom:4px}
+.nav button{border:0;background:transparent;padding:10px 4px 8px;font-size:12px;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav button i{font-style:normal;font-family:var(--font-display);font-weight:700;font-size:17px;width:30px;height:30px;border-radius:10px;display:grid;place-items:center}
+.nav button[aria-current="page"]{color:var(--teal);font-weight:700}
+.nav button[aria-current="page"] i{background:var(--teal-soft)}
+
+h3.sec{font-size:13px;letter-spacing:.06em;color:var(--ink-2);margin:0 0 8px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}
+h3.sec button{border:0;background:none;color:var(--teal);font-size:13px;font-weight:700;letter-spacing:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.banner{border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+.banner.next{background:var(--teal-soft)}
+.banner.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.banner p{margin:0;font-size:13px;line-height:1.5}
+.banner strong{display:block;font-size:16px}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:700;background:var(--teal);color:var(--teal-ink);white-space:nowrap}
+.btn.sub{background:var(--surface-2);color:var(--ink)}
+.btn.warn{background:var(--warn-ink);color:var(--surface)}
+
+.last{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.last .card{display:flex;flex-direction:column;gap:2px;padding:12px}
+.last .lbl{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);font-weight:700}
+.last .val{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.last .sub{font-size:12px;color:var(--ink-2)}
+
+.badge{--c:var(--teal);width:28px;height:28px;flex:none;border-radius:9px;display:grid;place-items:center;
+  font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--c);background:color-mix(in srgb, var(--c) 16%, var(--surface))}
+.badge.sm{width:22px;height:22px;font-size:12px;border-radius:7px}
+.t-milk{--c:var(--c-milk)}.t-breast{--c:var(--c-breast)}.t-poop{--c:var(--c-poop)}.t-pee{--c:var(--c-pee)}
+.t-glucose{--c:var(--c-glucose)}.t-sleep{--c:var(--c-sleep)}.t-med{--c:var(--c-med)}
+
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.quick button{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 6px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700;font-size:14px}
+.quick button .badge{width:40px;height:40px;font-size:18px;border-radius:13px}
+.quick button:active{transform:scale(.97)}
+
+.tl{display:flex;flex-direction:column}
+.tl-row{display:flex;gap:10px;align-items:flex-start;padding:10px 2px;border-bottom:1px solid var(--line)}
+.tl-row:last-child{border-bottom:0}
+.tl-time{font-variant-numeric:tabular-nums;font-weight:700;width:44px;flex:none;font-size:14px}
+.tl-body{flex:1;min-width:0;font-size:14px}
+.tl-body .memo{display:block;color:var(--ink-2);font-size:12px}
+.who{font-size:11px;padding:1px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);flex:none;margin-top:2px}
+.who.papa{background:var(--peach);color:var(--peach-ink)}
+.tl-del{border:0;background:var(--warn-bg);color:var(--warn-ink);border-radius:8px;font-size:12px;padding:4px 10px;margin-top:6px}
+.day{font-size:12px;font-weight:700;color:var(--ink-2);margin:6px 0 2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--teal-ink);font-weight:700}
+.swatch{display:flex;align-items:center;gap:6px}
+.swatch i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.18);display:inline-block}
+
+.med-row{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.med-row:last-child{border-bottom:0}
+.med-row .time{font-weight:700;font-variant-numeric:tabular-nums;font-size:16px}
+.pill{font-size:12px;border-radius:999px;padding:2px 10px;display:inline-block;margin-top:2px}
+.pill.done{background:var(--teal-soft);color:var(--teal)}
+.pill.miss{background:var(--warn-bg);color:var(--warn-ink);font-weight:700}
+.pill.todo{background:var(--surface-2);color:var(--ink-2)}
+.guard{grid-column:1 / -1;background:var(--warn-bg);color:var(--warn-ink);border-radius:12px;padding:12px;font-size:13px;display:flex;flex-direction:column;gap:10px}
+.guard div{display:flex;gap:8px;justify-content:flex-end}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.switch button{width:50px;height:30px;border-radius:999px;border:0;background:var(--line);position:relative;flex:none}
+.switch button::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--surface);transition:left .15s}
+.switch button[aria-checked="true"]{background:var(--teal)}
+.switch button[aria-checked="true"]::after{left:23px}
+.hint{font-size:12px;color:var(--ink-2);margin:0}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface-2);border-radius:12px;padding:10px}
+.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--ink-2)}
+.chart svg{width:100%;height:auto;display:block}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.kv:last-child{border-bottom:0}
+.kv span:last-child{font-weight:700;text-align:right}
+
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(10,20,26,.42);display:flex;align-items:flex-end;z-index:5}
+.sheet{background:var(--app);width:100%;border-radius:22px 22px 0 0;max-height:88%;overflow-y:auto;padding:18px 18px 22px;display:flex;flex-direction:column;gap:16px}
+.sheet-head{display:flex;justify-content:space-between;align-items:center}
+.sheet-head h2{font-family:var(--font-display);font-size:20px;margin:0;display:flex;gap:10px;align-items:center}
+.close{border:0;background:var(--surface-2);border-radius:999px;width:34px;height:34px;font-size:18px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field > label,.field > .flabel{font-size:13px;font-weight:700;color:var(--ink-2)}
+.field input,.field textarea{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 12px;font:inherit;font-size:16px;width:100%}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.unit{display:flex;align-items:center;gap:8px}
+.unit input{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.toast{position:absolute;left:16px;right:16px;bottom:76px;background:var(--ink);color:var(--app);border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px;z-index:6}
+.toast button{border:0;background:transparent;color:var(--app);font-weight:700;text-decoration:underline}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <aside class="notes" aria-label="この試作について">
+    <h1>よりそい JHIA試作</h1>
+    <p>乳児期のお子さんを育てるご家族（ペルソナA・B）を想定した、記録とお薬の試作です。お名前・数値・お薬の名前はすべてサンプルです。</p>
+    <h2>試してほしい流れ</h2>
+    <ol>
+      <li>ホームから「ミルク」「うんち」を記録する</li>
+      <li>右上の「記録する人」をパパに切り替え、「おくすり」で記録済みの回に「飲ませた」を押す</li>
+      <li>「まとめ」で受診前に見せる画面を確認する</li>
+    </ol>
+    <div class="note-box">このアプリは記録を残して共有するためのもので、数値の良し悪しや対応の判断はしません。記録はこの端末のブラウザにだけ保存されます。</div>
+    <button class="btn-ghost" id="reset-btn" data-action="reset">サンプルの状態に戻す</button>
+  </aside>
+
+  <main class="phone" id="phone">
+    <header class="top">
+      <div class="top-row">
+        <div class="brand">よりそい<small>高インスリン血性低血糖症 版（試作）</small></div>
+      </div>
+      <div class="top-row">
+        <div class="child"><div class="avatar">は</div><div><b>はるとくん</b><span>生後4か月</span></div></div>
+        <div>
+          <div class="seg-label">記録する人</div>
+          <div class="seg" role="group" aria-label="記録する人">
+            <button id="by-mama" data-action="by" data-v="mama">ママ</button>
+            <button id="by-papa" data-action="by" data-v="papa">パパ</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="screen" id="screen"></div>
+    <nav class="nav" aria-label="メニュー">
+      <button data-action="tab" data-v="home"><i>家</i>ホーム</button>
+      <button data-action="tab" data-v="log"><i>録</i>きろく</button>
+      <button data-action="tab" data-v="med"><i>薬</i>おくすり</button>
+      <button data-action="tab" data-v="sum"><i>表</i>まとめ</button>
+    </nav>
+    <div id="layer"></div>
+  </main>
+</div>
+
+<script>
+(function(){
+const KEY='yorisoi-jhia-mock-v1';
+const MIN=60e3, HOUR=3600e3;
+const WHO={mama:'ママ',papa:'パパ'};
+const TYPES={
+  milk:{label:'ミルク',ch:'ミ'}, breast:{label:'母乳',ch:'母'}, poop:{label:'うんち',ch:'う'},
+  pee:{label:'おしっこ',ch:'お'}, glucose:{label:'血糖',ch:'血'}, sleep:{label:'ねんね',ch:'寝'}, med:{label:'お薬',ch:'薬'}
+};
+const MEDS=[{id:'m1',name:'飲み薬①',times:['06:00','14:00','22:00']},{id:'m2',name:'飲み薬②',times:['08:00','20:00']}];
+const POOP_COLORS=[['黄色','#E2B93B'],['緑','#7A9A3A'],['茶色','#8A5A2B'],['白っぽい','#EDE8DA'],['黒っぽい','#3A302A'],['赤っぽい','#B5473A']];
+
+let S, ui={tab:'home',filter:'all',period:'today',openRow:null,guard:null,toast:null,lastId:null};
+
+function pad(n){return String(n).padStart(2,'0')}
+function hm(t){const d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes())}
+function ymd(t){const d=new Date(t);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function md(t){const d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()}
+function midnight(t,offsetDays){const d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()+(offsetDays||0));return d.getTime()}
+function slotTime(dayStart,hhmm){const [h,m]=hhmm.split(':').map(Number);return dayStart+h*HOUR+m*MIN}
+function ago(t){const m=Math.max(0,Math.round((Date.now()-t)/MIN));if(m<1)return 'たった今';if(m<60)return m+'分前';const h=Math.floor(m/60);return h+'時間'+(m%60?m%60+'分':'')+'前'}
+function until(t){const m=Math.max(0,Math.round((t-Date.now())/MIN));const h=Math.floor(m/60);return 'あと'+(h?h+'時間':'')+(m%60)+'分'}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function dayLabel(t){const d0=midnight(Date.now());if(t>=d0)return '今日';if(t>=d0-24*HOUR)return '昨日';return md(t)}
+
+function seed(){
+  const now=Date.now(),E=[];let n=1;
+  const add=(type,t,by,data)=>E.push({id:'s'+(n++),type,t:Math.round(t),by,data:data||{}});
+  let i=0;
+  for(let t=now-30*HOUR+20*MIN;t<now-25*MIN;t+=3*HOUR+((i%2)?12:-8)*MIN,i++){
+    const by=i%3===2?'papa':'mama';
+    if(i%2===0)add('glucose',t-10*MIN,by,{value:[78,92,70,85,88,74,81,96,73,90][i%10],method:i%4===0?'指先':'CGM',timing:'ミルク前'});
+    if(i%5===3)add('breast',t,'mama',{side:'左右',min:15});
+    else add('milk',t,by,{ml:[100,120,110,120,100,120][i%6],kind:'粉ミルク',spit:i%4===1?'少し':'なし'});
+    add('pee',t+6*MIN,by,{});
+    if(i%3===1)add('poop',t+9*MIN,by,{color:i%2?'黄色':'茶色',firm:i%2?'ゆるい':'ふつう',amount:'ふつう'});
+    if(i%4===2)add('sleep',t+40*MIN,by,{min:[90,60,120][i%3]});
+  }
+  [-1,0].forEach(off=>{
+    const d0=midnight(now,off);
+    MEDS.forEach(m=>m.times.forEach((tm,k)=>{
+      const st=slotTime(d0,tm);
+      if(st>now-20*MIN)return;
+      if(off===0&&st>now-2*HOUR)return; // 直近の回は未記録のまま残す（お知らせの例）
+      if(off===-1&&m.id==='m2'&&tm==='20:00')return; // 昨日の未記録の例
+      add('med',st+(3+k*2)*MIN,(k%2?'papa':'mama'),{medId:m.id,slot:ymd(d0)+' '+tm});
+    }));
+  });
+  E.sort((a,b)=>b.t-a.t);
+  return {entries:E,by:'mama',notify:true};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const v=localStorage.getItem(KEY);return v?JSON.parse(v):null}catch(e){return null}}
+S=load()||seed();
+
+function badge(type,sm){return '<span class="badge t-'+type+(sm?' sm':'')+'" aria-hidden="true">'+TYPES[type].ch+'</span>'}
+function medName(id){const m=MEDS.find(x=>x.id===id);return m?m.name:'お薬'}
+function describe(e){
+  const d=e.data||{};
+  switch(e.type){
+    case 'milk':return 'ミルク '+d.ml+'ml（'+esc(d.kind)+'）'+(d.spit&&d.spit!=='なし'?'・吐き戻し'+esc(d.spit):'');
+    case 'breast':return '母乳 '+esc(d.side)+' '+d.min+'分';
+    case 'poop':return 'うんち '+esc(d.color)+'・'+esc(d.firm)+'・量'+esc(d.amount);
+    case 'pee':return 'おしっこ';
+    case 'glucose':return '血糖 '+d.value+' mg/dL（'+esc(d.method)+'・'+esc(d.timing)+'）';
+    case 'sleep':return 'ねんね '+d.min+'分';
+    case 'med':return esc(medName(d.medId))+'（'+esc((d.slot||'').slice(11))+'の分）';
+  }
+  return '';
+}
+function last(type){return S.entries.find(e=>e.type===type)}
+
+function medSlots(off){
+  const d0=midnight(Date.now(),off),out=[];
+  MEDS.forEach(m=>m.times.forEach(tm=>{
+    const key=ymd(d0)+' '+tm;
+    const rec=S.entries.filter(e=>e.type==='med'&&e.data.medId===m.id&&e.data.slot===key).sort((a,b)=>a.t-b.t);
+    out.push({med:m,tm,key,t:slotTime(d0,tm),rec});
+  }));
+  return out.sort((a,b)=>a.t-b.t);
+}
+
+/* ---------- screens ---------- */
+function homeView(){
+  const now=Date.now();
+  const today=medSlots(0),tomorrow=medSlots(1);
+  const overdue=today.filter(s=>!s.rec.length&&s.t<now&&s.t>now-4*HOUR);
+  const next=today.concat(tomorrow).find(s=>!s.rec.length&&s.t>=now);
+  let banner='';
+  if(overdue.length){const s=overdue[0];
+    banner='<div class="banner warn"><p><strong>'+s.tm+' の'+esc(s.med.name)+'</strong>まだ記録がありません</p><button class="btn warn" data-action="give" data-key="'+s.key+'" data-med="'+s.med.id+'">飲ませた</button></div>';
+  }else if(next){
+    banner='<div class="banner next"><p><strong>次のお薬 '+next.tm+'　'+esc(next.med.name)+'</strong>'+until(next.t)+(S.notify?'・15分前にお知らせ':'')+'</p><button class="btn sub" data-action="tab" data-v="med">一覧</button></div>';
+  }
+  const lm=last('milk'),lp=last('poop'),lg=last('glucose'),lpe=last('pee');
+  const tile=(type,e,val)=>'<div class="card"><span class="lbl">'+badge(type,1)+TYPES[type].label+'</span><span class="val">'+(e?ago(e.t):'記録なし')+'</span><span class="sub">'+(e?val:'')+'</span></div>';
+  const todays=S.entries.filter(e=>e.t>=midnight(now)).slice(0,5);
+  return banner+
+  '<section><h3 class="sec">さいごの記録</h3><div class="last">'+
+    tile('milk',lm,lm?lm.data.ml+'ml・'+hm(lm.t):'')+
+    tile('poop',lp,lp?esc(lp.data.color)+'・'+esc(lp.data.firm):'')+
+    tile('glucose',lg,lg?lg.data.value+' mg/dL・'+hm(lg.t):'')+
+    tile('pee',lpe,lpe?hm(lpe.t):'')+
+  '</div></section>'+
+  '<section><h3 class="sec">記録する</h3><div class="quick">'+
+    ['milk','breast','poop','pee','glucose','sleep'].map(t=>'<button data-action="open" data-v="'+t+'">'+badge(t)+TYPES[t].label+'</button>').join('')+
+  '</div></section>'+
+  '<section><h3 class="sec">今日の記録<button data-action="tab" data-v="log">すべて見る</button></h3><div class="card tl">'+
+    (todays.length?todays.map(rowHTML).join(''):'<p class="hint">今日の記録はまだありません。上のボタンから記録できます。</p>')+
+  '</div></section>';
+}
+function rowHTML(e){
+  const open=ui.openRow===e.id;
+  return '<div class="tl-row" data-action="row" data-id="'+e.id+'"><span class="tl-time">'+hm(e.t)+'</span>'+badge(e.type,1)+
+    '<span class="tl-body">'+describe(e)+(e.data.memo?'<span class="memo">'+esc(e.data.memo)+'</span>':'')+
+    (open?'<br><button class="tl-del" data-action="del" data-id="'+e.id+'">この記録を削除</button>':'')+'</span>'+
+    '<span class="who '+e.by+'">'+WHO[e.by]+'</span></div>';
+}
+function logView(){
+  const f=ui.filter;
+  const filters=[['all','すべて'],['milk','ミルク・母乳'],['poop','うんち・おしっこ'],['glucose','血糖'],['med','お薬'],['sleep','ねんね']];
+  const match=e=>f==='all'||e.type===f||(f==='milk'&&e.type==='breast')||(f==='poop'&&e.type==='pee');
+  const list=S.entries.filter(match);
+  let html='<div class="chips" role="group" aria-label="絞り込み">'+filters.map(([v,l])=>'<button class="chip" data-action="filter" data-v="'+v+'" aria-pressed="'+(f===v)+'">'+l+'</button>').join('')+'</div>';
+  let cur='',body='';
+  list.forEach(e=>{const dl=dayLabel(e.t);if(dl!==cur){if(cur)body+='</div>';cur=dl;body+='<p class="day">'+dl+'（'+md(e.t)+'）</p><div class="card tl">'}body+=rowHTML(e)});
+  if(cur)body+='</div>';
+  return html+(body||'<p class="hint">この条件の記録はありません。</p>')+'<p class="hint">記録をタップすると削除できます。</p>';
+}
+function medView(){
+  const now=Date.now();
+  const block=(off,title)=>{
+    const rows=medSlots(off).map(s=>{
+      let status,btn;
+      if(s.rec.length){const r=s.rec[s.rec.length-1];status='<span class="pill done">'+WHO[r.by]+'が '+hm(r.t)+' に記録'+(s.rec.length>1?'（'+s.rec.length+'回）':'')+'</span>';btn='<button class="btn sub" data-action="give" data-key="'+s.key+'" data-med="'+s.med.id+'">飲ませた</button>'}
+      else if(s.t<now){status='<span class="pill miss">未記録</span>';btn='<button class="btn" data-action="give" data-key="'+s.key+'" data-med="'+s.med.id+'">飲ませた</button>'}
+      else{status='<span class="pill todo">これから</span>';btn=off===0?'<button class="btn sub" data-action="give" data-key="'+s.key+'" data-med="'+s.med.id+'">飲ませた</button>':''}
+      let guard='';
+      if(ui.guard===s.key&&s.rec.length){const r=s.rec[s.rec.length-1];
+        guard='<div class="guard" role="alert"><span><b>'+WHO[r.by]+'が '+hm(r.t)+' に記録しています。</b><br>重ねて飲ませていないか、もう一度ご確認ください。</span><div><button class="btn sub" data-action="guard-cancel">やめる</button><button class="btn warn" data-action="give-force" data-key="'+s.key+'" data-med="'+s.med.id+'">それでも記録</button></div></div>'}
+      return '<div class="med-row"><span class="time">'+s.tm+'</span><span>'+esc(s.med.name)+'<br>'+status+'</span>'+btn+guard+'</div>';
+    }).join('');
+    return '<section><h3 class="sec">'+title+'</h3><div class="card" style="padding-block:4px">'+rows+'</div></section>';
+  };
+  return '<div class="card switch"><span><b>飲ませる時間のお知らせ</b><br><span class="hint">時間の15分前にLINEでお知らせ（試作のため実際には届きません）</span></span><button role="switch" aria-label="お知らせ" aria-checked="'+(!!S.notify)+'" data-action="notify"></button></div>'+
+    block(0,'今日（'+md(now)+'）')+block(-1,'昨日（'+md(now-24*HOUR)+'）')+
+    '<p class="hint">お薬の名前と時間は、主治医の指示どおりにご家族が登録します。</p>';
+}
+function sumData(){
+  const now=Date.now(),from=ui.period==='today'?midnight(now):midnight(now,-2);
+  const E=S.entries.filter(e=>e.t>=from);
+  const of=t=>E.filter(e=>e.type===t);
+  const milk=of('milk'),poop=of('poop'),gl=of('glucose').slice().sort((a,b)=>a.t-b.t);
+  const slots=[];for(let o=(ui.period==='today'?0:-2);o<=0;o++)slots.push(...medSlots(o).filter(s=>s.t<now));
+  const given=slots.filter(s=>s.rec.length),missed=slots.filter(s=>!s.rec.length);
+  const colors={};poop.forEach(p=>colors[p.data.color]=(colors[p.data.color]||0)+1);
+  const firms={};poop.forEach(p=>firms[p.data.firm]=(firms[p.data.firm]||0)+1);
+  return {now,from,milk,breast:of('breast'),poop,pee:of('pee'),gl,sleep:of('sleep'),slots,given,missed,colors,firms,
+    ml:milk.reduce((a,e)=>a+Number(e.data.ml||0),0)};
+}
+function chartSVG(d){
+  if(!d.gl.length)return '<p class="hint">この期間の血糖の記録はありません。</p>';
+  const W=360,H=170,L=40,R=12,T=12,B=28;
+  const vals=d.gl.map(e=>e.data.value);
+  let lo=Math.floor((Math.min(...vals)-10)/10)*10,hi=Math.ceil((Math.max(...vals)+10)/10)*10;if(hi-lo<20)hi=lo+20;
+  const x=t=>L+(t-d.from)/(d.now-d.from)*(W-L-R),y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
+  const mid=(lo+hi)/2;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="血糖の記録の推移">';
+  [lo,mid,hi].forEach(v=>{s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--line)" stroke-width="1"/><text x="'+(L-6)+'" y="'+(y(v)+4)+'" text-anchor="end" font-size="11" fill="var(--ink-2)">'+Math.round(v)+'</text>'});
+  const xt=[d.from,(d.from+d.now)/2,d.now];
+  xt.forEach((t,i)=>{s+='<text x="'+x(t)+'" y="'+(H-8)+'" text-anchor="'+(i===0?'start':i===2?'end':'middle')+'" font-size="11" fill="var(--ink-2)">'+(ui.period==='today'?hm(t):md(t)+' '+hm(t))+'</text>'});
+  s+='<polyline fill="none" stroke="var(--c-glucose)" stroke-width="2" points="'+d.gl.map(e=>x(e.t).toFixed(1)+','+y(e.data.value).toFixed(1)).join(' ')+'"/>';
+  d.gl.forEach(e=>{s+='<circle cx="'+x(e.t).toFixed(1)+'" cy="'+y(e.data.value).toFixed(1)+'" r="4" fill="var(--c-glucose)" stroke="var(--surface)" stroke-width="2"/>'});
+  return s+'<text x="'+L+'" y="10" font-size="10" fill="var(--ink-2)">mg/dL</text></svg>';
+}
+function sumView(){
+  const d=sumData();
+  const obj=o=>Object.entries(o).map(([k,v])=>k+' '+v+'回').join('、')||'—';
+  return '<div class="chips" role="group" aria-label="期間">'+[['today','今日'],['3d','直近3日']].map(([v,l])=>'<button class="chip" data-action="period" data-v="'+v+'" aria-pressed="'+(ui.period===v)+'">'+l+'</button>').join('')+'</div>'+
+  '<section><h3 class="sec">受診前のまとめ（'+md(d.from)+'〜'+md(d.now)+'）</h3><div class="stats">'+
+    '<div class="stat"><b>'+d.ml+'<small>ml</small></b><span>ミルク '+d.milk.length+'回</span></div>'+
+    '<div class="stat"><b>'+d.poop.length+'<small>回</small></b><span>うんち</span></div>'+
+    '<div class="stat"><b>'+d.given.length+'/'+d.slots.length+'</b><span>お薬の記録</span></div>'+
+  '</div></section>'+
+  '<section class="card"><h3 class="sec">ミルク・母乳・おしっこ</h3>'+
+    '<div class="kv"><span>ミルク</span><span>'+d.milk.length+'回・合計'+d.ml+'ml</span></div>'+
+    '<div class="kv"><span>吐き戻しあり</span><span>'+d.milk.filter(e=>e.data.spit&&e.data.spit!=='なし').length+'回</span></div>'+
+    '<div class="kv"><span>母乳</span><span>'+d.breast.length+'回</span></div>'+
+    '<div class="kv"><span>おしっこ</span><span>'+d.pee.length+'回</span></div>'+
+  '</section>'+
+  '<section class="card"><h3 class="sec">うんち</h3>'+
+    '<div class="kv"><span>色</span><span>'+esc(obj(d.colors))+'</span></div>'+
+    '<div class="kv"><span>かたさ</span><span>'+esc(obj(d.firms))+'</span></div>'+
+  '</section>'+
+  '<section class="card chart"><h3 class="sec">血糖の記録（'+d.gl.length+'件）</h3>'+chartSVG(d)+
+    '<p class="hint">記録した値をそのまま並べています。判断は主治医とご相談ください。</p></section>'+
+  '<section class="card"><h3 class="sec">お薬</h3>'+
+    (d.missed.length?d.missed.map(s=>'<div class="kv"><span>'+md(s.t)+' '+s.tm+' '+esc(s.med.name)+'</span><span class="pill miss">未記録</span></div>').join(''):'<p class="hint">予定の回はすべて記録されています。</p>')+
+  '</section>'+
+  '<button class="btn" data-action="copy">家族・先生に送る用にコピー</button>';
+}
+function sumText(){
+  const d=sumData(),obj=o=>Object.entries(o).map(([k,v])=>k+v+'回').join('、')||'なし';
+  return ['【はるとくん 記録のまとめ '+md(d.from)+'〜'+md(d.now)+'】',
+    'ミルク：'+d.milk.length+'回（合計'+d.ml+'ml）／母乳：'+d.breast.length+'回',
+    'おしっこ：'+d.pee.length+'回',
+    'うんち：'+d.poop.length+'回（色：'+obj(d.colors)+'／かたさ：'+obj(d.firms)+'）',
+    '血糖：'+(d.gl.map(e=>md(e.t)+' '+hm(e.t)+' '+e.data.value).join('、')||'記録なし')+'（mg/dL）',
+    'お薬：予定'+d.slots.length+'回中 '+d.given.length+'回記録'+(d.missed.length?'（未記録：'+d.missed.map(s=>md(s.t)+' '+s.tm+' '+s.med.name).join('、')+'）':'')
+  ].join('\n');
+}
+
+/* ---------- sheet ---------- */
+function chips(name,opts,sel){return '<div class="chips" data-name="'+name+'" role="group">'+opts.map(o=>{const v=Array.isArray(o)?o[0]:o;const inner=Array.isArray(o)?'<span class="swatch"><i style="background:'+o[1]+'"></i>'+v+'</span>':v;return '<button type="button" class="chip" data-action="chip" data-v="'+v+'" aria-pressed="'+(String(v)===String(sel))+'">'+inner+'</button>'}).join('')+'</div>'}
+function field(label,html){return '<div class="field"><span class="flabel">'+label+'</span>'+html+'</div>'}
+function sheetHTML(type){
+  const now=hm(Date.now());
+  let f='';
+  if(type==='milk'){const lm=last('milk');const def=lm?lm.data.ml:100;
+    f=field('量','<div class="unit"><input id="f-ml" type="number" inputmode="numeric" min="0" step="10" value="'+def+'" aria-label="ミルクの量"><span>ml</span></div>'+chips('mlq',[60,80,100,120,140,160],def))+
+      field('種類',chips('kind',['粉ミルク','液体ミルク','経管'],'粉ミルク'))+field('吐き戻し',chips('spit',['なし','少し','多い'],'なし'));}
+  if(type==='breast')f=field('どちら',chips('side',['左','右','左右'],'左右'))+field('時間（分）',chips('min',[5,10,15,20,30],15));
+  if(type==='poop')f=field('色',chips('color',POOP_COLORS,'黄色'))+field('かたさ',chips('firm',['水っぽい','ゆるい','ふつう','かため'],'ふつう'))+field('量',chips('amount',['少し','ふつう','多い'],'ふつう'))+'<p class="hint">色や様子で気になることは、写真とあわせて主治医にご相談ください。</p>';
+  if(type==='glucose')f=field('血糖値','<div class="unit"><input id="f-gl" type="number" inputmode="numeric" min="10" max="600" placeholder="例 85" aria-label="血糖値"><span>mg/dL</span></div>')+
+      field('測り方',chips('method',['指先','CGM'],'指先'))+field('タイミング',chips('timing',['ミルク前','ミルク後','寝る前','その他'],'ミルク前'));
+  if(type==='sleep')f=field('ねんねの時間（分）',chips('min',[30,60,90,120,180],60));
+  return '<div class="scrim" data-action="scrim"><form class="sheet" id="sheet" data-type="'+type+'" aria-label="'+TYPES[type].label+'を記録">'+
+    '<div class="sheet-head"><h2>'+badge(type)+TYPES[type].label+'を記録</h2><button type="button" class="close" data-action="close" aria-label="閉じる">×</button></div>'+
+    f+'<div class="row2"><div class="field"><label for="f-time">時刻</label><input id="f-time" type="time" value="'+now+'"></div>'+
+    '<div class="field"><span class="flabel">記録する人</span><input value="'+WHO[S.by]+'" readonly aria-label="記録する人"></div></div>'+
+    field('メモ（任意）','<textarea id="f-memo" rows="2" placeholder="気になったことなど"></textarea>')+
+    '<p class="hint" id="f-err" role="alert" hidden></p>'+
+    '<button class="btn" type="submit" style="padding:14px">記録する</button></form></div>';
+}
+function pick(form,name){const b=form.querySelector('[data-name="'+name+'"] [aria-pressed="true"]');return b?b.dataset.v:''}
+function submitSheet(form){
+  const type=form.dataset.type,data={};
+  if(type==='milk'){data.ml=Number(form.querySelector('#f-ml').value)||0;data.kind=pick(form,'kind');data.spit=pick(form,'spit');
+    if(data.ml<=0)return err(form,'ミルクの量を入れてください。');}
+  if(type==='breast'){data.side=pick(form,'side');data.min=Number(pick(form,'min'))}
+  if(type==='poop'){data.color=pick(form,'color');data.firm=pick(form,'firm');data.amount=pick(form,'amount')}
+  if(type==='glucose'){const v=Number(form.querySelector('#f-gl').value);if(!v)return err(form,'血糖値を数字で入れてください。');data.value=v;data.method=pick(form,'method');data.timing=pick(form,'timing')}
+  if(type==='sleep'){data.min=Number(pick(form,'min'))}
+  const memo=form.querySelector('#f-memo').value.trim();if(memo)data.memo=memo;
+  const tv=form.querySelector('#f-time').value||hm(Date.now());
+  let t=slotTime(midnight(Date.now()),tv);if(t>Date.now()+5*MIN)t-=24*HOUR;
+  addEntry(type,t,data);
+  const label=type==='milk'?'ミルク '+data.ml+'ml':type==='glucose'?'血糖 '+data.value+' mg/dL':TYPES[type].label;
+  closeSheet();toast(label+' を記録しました',true);
+}
+function err(form,msg){const p=form.querySelector('#f-err');p.textContent=msg;p.hidden=false;p.style.color='var(--warn-ink)'}
+function addEntry(type,t,data){const e={id:'u'+Date.now()+Math.floor(Math.random()*1e3),type,t,by:S.by,data};S.entries.push(e);S.entries.sort((a,b)=>b.t-a.t);ui.lastId=e.id;save();return e}
+
+/* ---------- render ---------- */
+const $screen=document.getElementById('screen'),$layer=document.getElementById('layer');
+function render(){
+  const keep=$screen.scrollTop;
+  $screen.innerHTML={home:homeView,log:logView,med:medView,sum:sumView}[ui.tab]();
+  if(ui.keepScroll)$screen.scrollTop=keep;ui.keepScroll=false;
+  document.querySelectorAll('.nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.v===ui.tab?'page':'false'));
+  ['mama','papa'].forEach(w=>document.getElementById('by-'+w).setAttribute('aria-pressed',S.by===w));
+  renderToast();
+}
+function openSheet(type){$layer.innerHTML=sheetHTML(type);const f=document.getElementById('sheet');f.addEventListener('submit',ev=>{ev.preventDefault();submitSheet(f)});const first=f.querySelector('input[type=number]');if(first)first.focus()}
+function closeSheet(){$layer.innerHTML=''}
+let toastTimer;
+function toast(msg,undo){ui.toast={msg,undo};clearTimeout(toastTimer);toastTimer=setTimeout(()=>{ui.toast=null;renderToast()},5000);render()}
+function renderToast(){let el=document.getElementById('toast');if(el)el.remove();if(!ui.toast)return;
+  el=document.createElement('div');el.id='toast';el.className='toast';el.setAttribute('role','status');
+  el.innerHTML='<span>'+esc(ui.toast.msg)+'</span>'+(ui.toast.undo?'<button data-action="undo">取り消す</button>':'');
+  document.getElementById('phone').appendChild(el)}
+
+document.addEventListener('click',ev=>{
+  const a=ev.target.closest('[data-action]');if(!a)return;
+  const act=a.dataset.action,v=a.dataset.v;
+  if(act==='scrim'){if(ev.target===a)closeSheet();return}
+  if(act==='tab'){ui.tab=v;ui.openRow=null;ui.guard=null;$screen.scrollTop=0;render();return}
+  if(act==='by'){S.by=v;save();render();return}
+  if(act==='open'){openSheet(v);return}
+  if(act==='close'){closeSheet();return}
+  if(act==='chip'){ev.preventDefault();const g=a.closest('.chips');g.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===a));
+    if(g.dataset.name==='mlq'){document.getElementById('f-ml').value=v}
+    if(g.dataset.name==='filter'){}return}
+  if(act==='filter'){ui.filter=v;render();return}
+  if(act==='period'){ui.period=v;render();return}
+  if(act==='row'){if(ev.target.closest('.tl-del'))return;ui.openRow=ui.openRow===a.dataset.id?null:a.dataset.id;ui.keepScroll=true;render();return}
+  if(act==='del'){S.entries=S.entries.filter(e=>e.id!==a.dataset.id);ui.openRow=null;save();ui.keepScroll=true;toast('記録を削除しました',false);return}
+  if(act==='notify'){S.notify=!S.notify;save();ui.keepScroll=true;render();return}
+  if(act==='give'||act==='give-force'){
+    const key=a.dataset.key,med=a.dataset.med;
+    const done=S.entries.some(e=>e.type==='med'&&e.data.medId===med&&e.data.slot===key);
+    if(done&&act==='give'){ui.guard=key;if(ui.tab!=='med'){ui.tab='med'}ui.keepScroll=true;render();return}
+    addEntry('med',Date.now(),{medId:med,slot:key});ui.guard=null;ui.keepScroll=true;
+    toast(medName(med)+'（'+key.slice(11)+'の分）を記録しました',true);return}
+  if(act==='guard-cancel'){ui.guard=null;ui.keepScroll=true;render();return}
+  if(act==='undo'){if(ui.lastId){S.entries=S.entries.filter(e=>e.id!==ui.lastId);ui.lastId=null;save()}ui.toast=null;ui.keepScroll=true;render();return}
+  if(act==='copy'){const text=sumText();
+    const done=()=>toast('まとめをコピーしました',false);
+    const fallback=()=>{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('aria-label','まとめ');ta.rows=8;ta.style.width='100%';a.insertAdjacentElement('afterend',ta);ta.select();toast('コピーできない環境のため、下の文章を選択しました',false)};
+    try{navigator.clipboard.writeText(text).then(done,fallback)}catch(e){fallback()}return}
+  if(act==='reset'){S=seed();save();ui={tab:'home',filter:'all',period:'today',openRow:null,guard:null,toast:null,lastId:null};closeSheet();render();return}
+});
+render();
+setInterval(()=>{if(!$layer.innerHTML){ui.keepScroll=true;render()}},60e3);
+})();
+</script>
+
+</body></html>
